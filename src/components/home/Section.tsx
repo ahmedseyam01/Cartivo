@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getI18n } from "@/i18n/server";
 
 export function HomeSection({
   title,
   href,
-  linkLabel = "View all",
+  linkLabel,
   children,
 }: {
   title: string;
@@ -18,8 +19,8 @@ export function HomeSection({
         <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h2>
         {href && (
           <Link href={href} className="group flex shrink-0 items-center gap-1 text-sm font-medium">
-            {linkLabel}
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            {linkLabel ?? getI18n().t.product.viewAll}
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
           </Link>
         )}
       </div>

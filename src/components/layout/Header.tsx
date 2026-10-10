@@ -9,11 +9,11 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
       <div className="page-container flex h-16 items-center gap-4">
         <Logo />
-        <NavLinks className="ml-4 hidden md:flex" />
+        <NavLinks className="ms-4 hidden md:flex" />
         <Suspense>
-          <SearchBar className="ml-auto hidden w-full max-w-xs md:block lg:max-w-sm" />
+          <SearchBar className="ms-auto hidden w-full max-w-xs md:block lg:max-w-sm" />
         </Suspense>
-        <div className="ml-auto md:ml-0">
+        <div className="ms-auto md:ms-0">
           <HeaderActions />
         </div>
       </div>

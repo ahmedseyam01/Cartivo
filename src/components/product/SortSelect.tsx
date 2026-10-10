@@ -3,18 +3,13 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { ArrowUpDown, Loader2 } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 import type { ProductSort } from "@/types/catalog";
 
-const options: { value: ProductSort; label: string }[] = [
-  { value: "featured", label: "Featured" },
-  { value: "best-selling", label: "Best selling" },
-  { value: "top-rated", label: "Top rated" },
-  { value: "newest", label: "Newest" },
-  { value: "price-asc", label: "Price: low to high" },
-  { value: "price-desc", label: "Price: high to low" },
-];
+const sorts: ProductSort[] = ["featured", "best-selling", "top-rated", "newest", "price-asc", "price-desc"];
 
 export function SortSelect({ value }: { value: ProductSort }) {
+  const { t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -28,22 +23,20 @@ export function SortSelect({ value }: { value: ProductSort }) {
     startTransition(() => router.push(`${pathname}?${params}`, { scroll: false }));
   }
 
+  const Icon = isPending ? Loader2 : ArrowUpDown;
+
   return (
     <label className="relative inline-flex items-center">
-      <span className="sr-only">Sort products</span>
-      {isPending ? (
-        <Loader2 className="pointer-events-none absolute left-3 size-4 animate-spin" />
-      ) : (
-        <ArrowUpDown className="pointer-events-none absolute left-3 size-4" />
-      )}
+      <span className="sr-only">{t.catalog.sortLabel}</span>
+      <Icon className={`pointer-events-none absolute start-3 size-4 ${isPending ? "animate-spin" : ""}`} />
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 appearance-none rounded-full border bg-white pr-4 pl-9 text-sm font-medium outline-none focus:border-foreground"
+        className="focus:border-foreground h-10 appearance-none rounded-full border bg-white ps-9 pe-4 text-sm font-medium outline-none"
       >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
+        {sorts.map((sort) => (
+          <option key={sort} value={sort}>
+            {t.catalog.sort[sort]}
           </option>
         ))}
       </select>

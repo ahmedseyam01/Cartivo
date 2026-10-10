@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
+import { getI18n } from "@/i18n/server";
 
 /** Cartivo mark: a shopping bag whose body is drawn as the letter "C". */
 export function LogoMark({ className }: { className?: string }) {
@@ -17,10 +18,11 @@ export function LogoMark({ className }: { className?: string }) {
 }
 
 export function Logo({ className, markClassName }: { className?: string; markClassName?: string }) {
+  const { t } = getI18n();
   return (
     <Link
       href="/"
-      aria-label={`${siteConfig.name} home`}
+      aria-label={t.nav.logo}
       className={cn("inline-flex items-center gap-2 text-xl font-bold tracking-tight", className)}
     >
       <LogoMark className={markClassName} />

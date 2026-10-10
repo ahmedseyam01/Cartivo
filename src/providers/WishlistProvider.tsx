@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { addToWishlist, getWishlistIds, removeFromWishlist } from "@/actions/wishlist";
 import { useSignInRedirect } from "@/hooks/useSignInRedirect";
+import { useErrorText, useI18n } from "@/i18n/I18nProvider";
 
 type WishlistContextValue = {
   ids: ReadonlySet<string>;
@@ -18,6 +19,8 @@ const WishlistContext = createContext<WishlistContextValue | null>(null);
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
+  const { t } = useI18n();
+  const errorText = useErrorText();
   const redirectToSignIn = useSignInRedirect();
   const [ids, setIds] = useState<ReadonlySet<string>>(new Set());
   const [ready, setReady] = useState(false);
@@ -57,14 +60,14 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       const result = saved ? await removeFromWishlist(productId) : await addToWishlist(productId);
       if (result.ok) {
         setIds(new Set(result.data));
-        toast.success(saved ? "Removed from wishlist" : "Saved to wishlist");
+        toast.success(saved ? t.toast.removedFromWishlist : t.toast.savedToWishlist);
       } else {
         setIds((prev) => flip(prev));
         if (result.unauthorized) redirectToSignIn();
-        else toast.error(result.error);
+        else toast.error(errorText(result.error) ?? t.errors.generic);
       }
     },
-    [ids, status, redirectToSignIn],
+    [ids, status, redirectToSignIn, t, errorText],
   );
 
   const value = useMemo(() => ({ ids, ready, has: (id: string) => ids.has(id), toggle }), [ids, ready, toggle]);

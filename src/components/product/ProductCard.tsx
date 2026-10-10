@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getI18n } from "@/i18n/server";
 import type { Product } from "@/types/catalog";
 import { AddToCartButton } from "./AddToCartButton";
 import { WishlistButton } from "./WishlistButton";
@@ -7,6 +8,7 @@ import { Price, discountPercent } from "./Price";
 import { Rating } from "./Rating";
 
 export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
+  const { t } = getI18n();
   const discount = discountPercent(product.price, product.priceAfterDiscount);
   const inStock = product.quantity > 0;
   const href = `/products/${product.id}`;
@@ -24,14 +26,14 @@ export function ProductCard({ product, priority = false }: { product: Product; p
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {discount > 0 && (
-          <span className="bg-foreground text-background absolute top-3 left-3 rounded-full px-2.5 py-1 text-[11px] font-semibold">
+          <span className="bg-foreground text-background absolute start-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-semibold">
             −{discount}%
           </span>
         )}
-        <WishlistButton productId={product.id} className="absolute top-3 right-3 z-10" />
+        <WishlistButton productId={product.id} className="absolute end-3 top-3 z-10" />
         {!inStock && (
           <span className="absolute inset-x-3 bottom-3 rounded-full bg-white/90 py-1.5 text-center text-xs font-semibold backdrop-blur">
-            Out of stock
+            {t.product.outOfStock}
           </span>
         )}
       </div>
@@ -47,14 +49,14 @@ export function ProductCard({ product, priority = false }: { product: Product; p
 
         <h3 className="line-clamp-2 min-h-10 text-sm leading-5 font-medium">
           <Link href={href} className="after:absolute after:inset-0 after:content-['']">
-            {product.title}
+            <bdi>{product.title}</bdi>
           </Link>
         </h3>
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-1">
           <Price price={product.price} discounted={product.priceAfterDiscount} className="text-base sm:text-lg" />
           {/* Above the stretched title link so it stays clickable. */}
-          <AddToCartButton productId={product.id} inStock={inStock} compact className="relative z-10" />
+          <AddToCartButton productId={product.id} inStock={inStock} className="relative z-10" />
         </div>
       </div>
     </article>

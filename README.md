@@ -10,7 +10,11 @@ A fast, mobile-first e-commerce storefront built with **Next.js 15 (App Router)*
 - Wishlist: optimistic heart toggle everywhere, dedicated wishlist page
 - Checkout: saved or new address, **card (Stripe)** or **cash on delivery**
 - Account: orders history, profile update, password change, address book
+- Shop filters: category, sub-category, price range, in-stock only, sorting — all in the URL, shareable
+- Product page: quantity picker, stock warnings, related products
+- **Arabic + English** with full right-to-left layout and an Arabic font, switchable from the header
 - Mobile: app-style bottom tab bar, swipeable filters, safe-area support, installable manifest
+- SEO: sitemap.xml, robots.txt, product structured data (price, stock, rating), proper 404 status codes
 
 ## Getting started
 
@@ -28,16 +32,22 @@ npm run dev
 
 Scripts: `dev`, `build`, `start`, `lint`, `typecheck`.
 
+### Deploying to Vercel
+
+Add the three variables above in **Project → Settings → Environment Variables**, with `NEXTAUTH_URL` set to your real domain (e.g. `https://cartivo.vercel.app`) and a **new** random `NEXTAUTH_SECRET`. Without them, sign-in will not work in production.
+
 ## Architecture
 
 ```
 src/
-├── app/                    Routes only — thin pages that compose components
-│   ├── (shop)/             products, categories, brands        (public, cached/ISR)
-│   ├── (account)/          cart, checkout, wishlist, allorders, profile (protected)
-│   ├── (auth)/             login, register, forgot-password
-│   ├── (info)/             about, contact, help, policies
+├── app/
+│   └── [locale]/           Every page, rendered once per language (en, ar)
+│       ├── (shop)/             products, categories, brands        (public, cached/ISR)
+│       ├── (account)/          cart, checkout, wishlist, allorders, profile (protected)
+│       ├── (auth)/             login, register, forgot-password
+│       └── (info)/             about, contact, help, policies
 │   └── api/auth/           NextAuth route handler
+├── i18n/                   Language config, dictionaries (en.ts, ar.ts) and helpers
 ├── actions/                Server Actions ("use server") — every mutation goes through here
 ├── lib/
 │   ├── api/http.ts         The single fetch wrapper (caching, auth header, errors)
@@ -52,11 +62,13 @@ src/
 │   ├── product/ catalog/ cart/ checkout/ orders/ account/ auth/ home/ shared/
 │   └── ui/                 shadcn/ui primitives
 ├── types/                  Domain types
-└── middleware.ts           Route protection
+└── middleware.ts           Picks the language and protects account routes
 ```
 
 ### Key decisions
 
+- **Clean URLs in both languages.** The language lives in a cookie (or the browser language on first visit); middleware rewrites `/products` to `/ar/products` internally, so every page is still statically cached per language. Visiting `/ar/...` or `/en/...` sets the language.
+- **All text lives in `src/i18n/dictionaries`.** Add a string to `en.ts` and TypeScript forces the same key in `ar.ts`.
 - **The access token never reaches the browser.** It lives in the encrypted NextAuth cookie and is read only on the server (`lib/auth/session.ts`). Client components call Server Actions instead of the API directly.
 - **Public pages are statically cached** (ISR, 1 hour) and product pages are pre-rendered at build time.
 - **Search runs on the server** over the cached catalog, because the backend keyword search is unreliable.

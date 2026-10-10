@@ -10,16 +10,12 @@ import { Loader2 } from "lucide-react";
 import { requestPasswordReset, resetPassword, verifyResetCode } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { FormError, TextField } from "@/components/shared/FormField";
+import { format } from "@/i18n/config";
+import { useI18n } from "@/i18n/I18nProvider";
 import { forgotPasswordSchema, resetCodeSchema, resetPasswordSchema } from "@/lib/validations";
 import type { z } from "zod";
 
 type Step = "email" | "code" | "password";
-
-const titles: Record<Step, { title: string; text: (email: string) => string }> = {
-  email: { title: "Reset your password", text: () => "Enter your email and we'll send you a reset code." },
-  code: { title: "Check your inbox", text: (email) => `We sent a code to ${email}. It expires in 10 minutes.` },
-  password: { title: "Choose a new password", text: () => "Make it strong — you'll be signed in right after." },
-};
 
 function Submit({ busy, children }: { busy: boolean; children: React.ReactNode }) {
   return (
@@ -31,6 +27,7 @@ function Submit({ busy, children }: { busy: boolean; children: React.ReactNode }
 }
 
 export function ForgotPasswordFlow() {
+  const { t } = useI18n();
   const router = useRouter();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -70,22 +67,29 @@ export function ForgotPasswordFlow() {
     if (!result.ok) return setError(result.error);
 
     const session = await signIn("credentials", { email, password: newPassword, redirect: false });
-    toast.success("Password updated");
+    toast.success(t.toast.passwordUpdated);
     router.replace(session?.ok ? "/" : "/login");
     router.refresh();
   }
 
+  const heading = {
+    email: { title: t.auth.resetEmailTitle, text: t.auth.resetEmailText },
+    code: { title: t.auth.resetCodeTitle, text: format(t.auth.resetCodeText, { email }) },
+    password: { title: t.auth.resetPasswordTitle, text: t.auth.resetPasswordText },
+  }[step];
+
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight">{titles[step].title}</h1>
-        <p className="text-muted-foreground mt-2 text-sm">{titles[step].text(email)}</p>
+        <h1 className="text-2xl font-bold tracking-tight">{heading.title}</h1>
+        <p className="text-muted-foreground mt-2 text-sm">{heading.text}</p>
       </div>
 
       {step === "email" && (
         <form onSubmit={emailForm.handleSubmit(sendCode)} className="space-y-4" noValidate>
           <TextField
-            label="Email"
+            label={t.auth.email}
+            dir="ltr"
             type="email"
             inputMode="email"
             autoComplete="email"
@@ -93,14 +97,14 @@ export function ForgotPasswordFlow() {
             error={emailForm.formState.errors.email}
           />
           <FormError message={error} />
-          <Submit busy={emailForm.formState.isSubmitting}>Send reset code</Submit>
+          <Submit busy={emailForm.formState.isSubmitting}>{t.auth.sendCode}</Submit>
         </form>
       )}
 
       {step === "code" && (
         <form onSubmit={codeForm.handleSubmit(checkCode)} className="space-y-4" noValidate>
           <TextField
-            label="Reset code"
+            label={t.auth.code}
             inputMode="numeric"
             autoComplete="one-time-code"
             className="[&_input]:text-center [&_input]:text-lg [&_input]:tracking-[0.5em]"
@@ -108,13 +112,13 @@ export function ForgotPasswordFlow() {
             error={codeForm.formState.errors.resetCode}
           />
           <FormError message={error} />
-          <Submit busy={codeForm.formState.isSubmitting}>Verify code</Submit>
+          <Submit busy={codeForm.formState.isSubmitting}>{t.auth.verify}</Submit>
           <button
             type="button"
             onClick={() => sendCode({ email })}
             className="text-muted-foreground hover:text-foreground w-full text-center text-sm"
           >
-            Didn&apos;t get it? Send again
+            {t.auth.resend}
           </button>
         </form>
       )}
@@ -122,21 +126,21 @@ export function ForgotPasswordFlow() {
       {step === "password" && (
         <form onSubmit={passwordForm.handleSubmit(savePassword)} className="space-y-4" noValidate>
           <TextField
-            label="New password"
+            label={t.auth.newPassword}
             type="password"
             autoComplete="new-password"
             registration={passwordForm.register("newPassword")}
             error={passwordForm.formState.errors.newPassword}
           />
           <TextField
-            label="Confirm password"
+            label={t.auth.confirmPassword}
             type="password"
             autoComplete="new-password"
             registration={passwordForm.register("confirm")}
             error={passwordForm.formState.errors.confirm}
           />
           <FormError message={error} />
-          <Submit busy={passwordForm.formState.isSubmitting}>Save and sign in</Submit>
+          <Submit busy={passwordForm.formState.isSubmitting}>{t.auth.saveAndSignIn}</Submit>
         </form>
       )}
     </div>

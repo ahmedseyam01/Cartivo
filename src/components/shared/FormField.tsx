@@ -1,9 +1,12 @@
+"use client";
+
 import type { FieldError, UseFormRegisterReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useErrorText } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
-/** Labelled input wired to react-hook-form's `register`, with an accessible error message. */
+/** Labelled input wired to react-hook-form's `register`, with a translated, accessible error. */
 export function TextField({
   label,
   registration,
@@ -15,6 +18,7 @@ export function TextField({
   registration: UseFormRegisterReturn;
   error?: FieldError;
 }) {
+  const errorText = useErrorText();
   const id = props.id ?? registration.name;
   const errorId = `${id}-error`;
 
@@ -31,7 +35,7 @@ export function TextField({
       />
       {error?.message && (
         <p id={errorId} className="text-destructive text-xs">
-          {error.message}
+          {errorText(error.message)}
         </p>
       )}
     </div>
@@ -39,10 +43,11 @@ export function TextField({
 }
 
 export function FormError({ message }: { message?: string | null }) {
+  const errorText = useErrorText();
   if (!message) return null;
   return (
     <p role="alert" className="bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm">
-      {message}
+      {errorText(message)}
     </p>
   );
 }

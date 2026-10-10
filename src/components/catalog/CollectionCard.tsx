@@ -51,7 +51,7 @@ export function CollectionCard({
       </div>
       <span className="mt-3 flex items-center justify-between text-sm font-semibold sm:text-base">
         {name}
-        <ArrowUpRight className="size-4 opacity-0 transition-opacity group-hover:opacity-100" />
+        <ArrowUpRight className="size-4 opacity-0 transition-opacity group-hover:opacity-100 rtl:-scale-x-100" />
       </span>
     </Link>
   );

@@ -9,10 +9,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormError, TextField } from "@/components/shared/FormField";
+import { useI18n } from "@/i18n/I18nProvider";
 import { loginSchema, type LoginValues } from "@/lib/validations";
 import { safeRedirect } from "@/lib/safe-redirect";
 
 export function LoginForm() {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = safeRedirect(searchParams.get("callbackUrl"));
@@ -28,7 +30,7 @@ export function LoginForm() {
     setError(null);
     const result = await signIn("credentials", { ...values, redirect: false });
     if (!result?.ok) {
-      setError(result?.error && result.error !== "CredentialsSignin" ? result.error : "Incorrect email or password");
+      setError(result?.error && result.error !== "CredentialsSignin" ? result.error : t.auth.invalidLogin);
       return;
     }
     router.replace(callbackUrl);
@@ -38,30 +40,31 @@ export function LoginForm() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <TextField
-        label="Email"
+        label={t.auth.email}
         type="email"
         autoComplete="email"
         inputMode="email"
         placeholder="you@example.com"
+        dir="ltr"
         registration={form.register("email")}
         error={errors.email}
       />
       <div className="space-y-2">
         <TextField
-          label="Password"
+          label={t.auth.password}
           type="password"
           autoComplete="current-password"
           registration={form.register("password")}
           error={errors.password}
         />
-        <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground block text-right text-xs">
-          Forgot password?
+        <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground block text-end text-xs">
+          {t.auth.forgot}
         </Link>
       </div>
       <FormError message={error} />
       <Button type="submit" size="lg" disabled={isSubmitting} className="h-12 w-full rounded-full text-base">
         {isSubmitting && <Loader2 className="animate-spin" />}
-        Sign in
+        {t.auth.signIn}
       </Button>
     </form>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getI18n } from "@/i18n/server";
 import { cn } from "@/lib/utils";
 
 type Params = Record<string, string | undefined>;
@@ -19,6 +20,8 @@ function pageList(page: number, pageCount: number) {
   return sorted.flatMap((p, i) => (i > 0 && p - sorted[i - 1] > 1 ? ["…", p] : [p]));
 }
 
+const item = "inline-flex size-10 items-center justify-center rounded-full text-sm font-medium transition-colors";
+
 export function Pagination({
   pathname,
   params,
@@ -31,21 +34,22 @@ export function Pagination({
   pageCount: number;
 }) {
   if (pageCount <= 1) return null;
+  const { t } = getI18n();
 
-  const item = "inline-flex size-10 items-center justify-center rounded-full text-sm font-medium transition-colors";
+  const step = (target: number, enabled: boolean, label: string, Icon: typeof ChevronLeft) =>
+    enabled ? (
+      <Link href={hrefFor(pathname, params, target)} aria-label={label} className={cn(item, "hover:bg-accent")}>
+        <Icon className="size-4 rtl:rotate-180" />
+      </Link>
+    ) : (
+      <span className={cn(item, "opacity-30")} aria-hidden>
+        <Icon className="size-4 rtl:rotate-180" />
+      </span>
+    );
 
   return (
-    <nav aria-label="Pagination" className="mt-12 flex items-center justify-center gap-1">
-      {page > 1 ? (
-        <Link href={hrefFor(pathname, params, page - 1)} aria-label="Previous page" className={cn(item, "hover:bg-accent")}>
-          <ChevronLeft className="size-4" />
-        </Link>
-      ) : (
-        <span className={cn(item, "opacity-30")} aria-hidden>
-          <ChevronLeft className="size-4" />
-        </span>
-      )}
-
+    <nav aria-label={t.catalog.pagination} className="mt-12 flex items-center justify-center gap-1">
+      {step(page - 1, page > 1, t.catalog.previous, ChevronLeft)}
       {pageList(page, pageCount).map((p, i) =>
         p === "…" ? (
           <span key={`gap-${i}`} className={cn(item, "text-muted-foreground")}>
@@ -62,16 +66,7 @@ export function Pagination({
           </Link>
         ),
       )}
-
-      {page < pageCount ? (
-        <Link href={hrefFor(pathname, params, page + 1)} aria-label="Next page" className={cn(item, "hover:bg-accent")}>
-          <ChevronRight className="size-4" />
-        </Link>
-      ) : (
-        <span className={cn(item, "opacity-30")} aria-hidden>
-          <ChevronRight className="size-4" />
-        </span>
-      )}
+      {step(page + 1, page < pageCount, t.catalog.next, ChevronRight)}
     </nav>
   );
 }

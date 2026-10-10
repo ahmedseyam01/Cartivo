@@ -10,9 +10,12 @@ import { Loader2 } from "lucide-react";
 import { registerUser } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { FormError, TextField } from "@/components/shared/FormField";
+import { format } from "@/i18n/config";
+import { useI18n } from "@/i18n/I18nProvider";
 import { registerSchema, type RegisterValues } from "@/lib/validations";
 
 export function RegisterForm() {
+  const { t } = useI18n();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
@@ -33,16 +36,16 @@ export function RegisterForm() {
       router.push("/login");
       return;
     }
-    toast.success(`Welcome to Cartivo, ${values.name.split(" ")[0]}!`);
+    toast.success(format(t.toast.welcome, { name: values.name.split(" ")[0] }));
     router.replace("/");
     router.refresh();
   }
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2" noValidate>
-      <TextField className="sm:col-span-2" label="Full name" autoComplete="name" registration={form.register("name")} error={errors.name} />
+      <TextField className="sm:col-span-2" label={t.auth.fullName} autoComplete="name" registration={form.register("name")} error={errors.name} />
       <TextField
-        label="Email"
+        label={t.auth.email}
         type="email"
         inputMode="email"
         autoComplete="email"
@@ -50,23 +53,24 @@ export function RegisterForm() {
         error={errors.email}
       />
       <TextField
-        label="Phone"
+        label={t.auth.phone}
         type="tel"
         inputMode="tel"
         autoComplete="tel"
         placeholder="01xxxxxxxxx"
+        dir="ltr"
         registration={form.register("phone")}
         error={errors.phone}
       />
       <TextField
-        label="Password"
+        label={t.auth.password}
         type="password"
         autoComplete="new-password"
         registration={form.register("password")}
         error={errors.password}
       />
       <TextField
-        label="Confirm password"
+        label={t.auth.confirmPassword}
         type="password"
         autoComplete="new-password"
         registration={form.register("rePassword")}
@@ -76,7 +80,7 @@ export function RegisterForm() {
         <FormError message={error} />
         <Button type="submit" size="lg" disabled={isSubmitting} className="h-12 w-full rounded-full text-base">
           {isSubmitting && <Loader2 className="animate-spin" />}
-          Create account
+          {t.auth.submitRegister}
         </Button>
       </div>
     </form>

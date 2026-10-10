@@ -9,9 +9,11 @@ import { Loader2 } from "lucide-react";
 import { updateProfile } from "@/actions/account";
 import { Button } from "@/components/ui/button";
 import { FormError, TextField } from "@/components/shared/FormField";
+import { useI18n } from "@/i18n/I18nProvider";
 import { profileSchema, type ProfileValues } from "@/lib/validations";
 
 export function ProfileForm({ name, email }: { name: string; email: string }) {
+  const { t } = useI18n();
   const { update } = useSession();
   const [error, setError] = useState<string | null>(null);
   const form = useForm<ProfileValues>({
@@ -31,19 +33,20 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
 
     await update({ user: { name: result.data.name, email: result.data.email } });
     form.reset({ name: result.data.name, email: result.data.email, phone: "" });
-    toast.success("Profile updated");
+    toast.success(t.toast.profileUpdated);
   }
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2" noValidate>
-      <TextField label="Full name" autoComplete="name" registration={form.register("name")} error={errors.name} />
-      <TextField label="Email" type="email" autoComplete="email" registration={form.register("email")} error={errors.email} />
+      <TextField label={t.profile.fullName} autoComplete="name" registration={form.register("name")} error={errors.name} />
+      <TextField label={t.profile.email} type="email" autoComplete="email" registration={form.register("email")} error={errors.email} />
       <TextField
-        label="Phone"
+        label={t.profile.phone}
         type="tel"
         inputMode="tel"
         autoComplete="tel"
-        placeholder="Leave empty to keep current"
+        placeholder={t.profile.phonePlaceholder}
+        dir="ltr"
         registration={form.register("phone")}
         error={errors.phone}
       />
@@ -51,7 +54,7 @@ export function ProfileForm({ name, email }: { name: string; email: string }) {
         <FormError message={error} />
         <Button type="submit" disabled={!isDirty || isSubmitting} className="h-11 rounded-full px-6">
           {isSubmitting && <Loader2 className="animate-spin" />}
-          Save changes
+          {t.profile.save}
         </Button>
       </div>
     </form>

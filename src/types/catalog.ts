@@ -53,6 +53,9 @@ export interface ProductQuery {
   category?: string;
   brand?: string;
   subcategory?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
   sort?: ProductSort;
   page?: number;
   pageSize?: number;

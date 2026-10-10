@@ -16,10 +16,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { format } from "@/i18n/config";
+import { useErrorText, useI18n } from "@/i18n/I18nProvider";
 import { addressSchema, type AddressValues } from "@/lib/validations";
 import type { Address } from "@/types/commerce";
 
 export function AddressBook({ initialAddresses }: { initialAddresses: Address[] }) {
+  const { t } = useI18n();
+  const errorText = useErrorText();
   const [addresses, setAddresses] = useState(initialAddresses);
   const [removing, setRemoving] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -38,16 +42,16 @@ export function AddressBook({ initialAddresses }: { initialAddresses: Address[] 
     setAddresses(result.data);
     form.reset();
     setOpen(false);
-    toast.success("Address saved");
+    toast.success(t.toast.addressSaved);
   }
 
   async function onRemove(id: string) {
     setRemoving(id);
     const result = await removeAddress(id);
     setRemoving(null);
-    if (!result.ok) return void toast.error(result.error);
+    if (!result.ok) return void toast.error(errorText(result.error) ?? t.errors.generic);
     setAddresses(result.data);
-    toast.success("Address removed");
+    toast.success(t.toast.addressRemoved);
   }
 
   return (
@@ -62,13 +66,13 @@ export function AddressBook({ initialAddresses }: { initialAddresses: Address[] 
                 <p className="text-muted-foreground">
                   {address.details}, {address.city}
                 </p>
-                <p className="text-muted-foreground">{address.phone}</p>
+                <p className="text-muted-foreground" dir="ltr">{address.phone}</p>
               </div>
               <button
                 type="button"
                 onClick={() => onRemove(address._id)}
                 disabled={removing === address._id}
-                aria-label={`Remove ${address.name}`}
+                aria-label={format(t.profile.removeAddress, { name: address.name })}
                 className="text-muted-foreground hover:text-destructive rounded-full p-1.5 transition-colors"
               >
                 {removing === address._id ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
@@ -77,31 +81,32 @@ export function AddressBook({ initialAddresses }: { initialAddresses: Address[] 
           ))}
         </ul>
       ) : (
-        <p className="text-muted-foreground text-sm">No saved addresses yet. Saved addresses make checkout one tap.</p>
+        <p className="text-muted-foreground text-sm">{t.profile.noAddresses}</p>
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button variant="outline" className="h-11 rounded-full px-5">
-            <Plus /> Add address
+            <Plus /> {t.profile.addAddress}
           </Button>
         </DialogTrigger>
         <DialogContent className="rounded-2xl sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>New address</DialogTitle>
-            <DialogDescription>Where should we deliver?</DialogDescription>
+            <DialogTitle>{t.profile.newAddress}</DialogTitle>
+            <DialogDescription>{t.profile.newAddressText}</DialogDescription>
           </DialogHeader>
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4" noValidate>
-            <TextField label="Label" placeholder="Home, Work…" registration={form.register("name")} error={errors.name} />
-            <TextField label="City" autoComplete="address-level2" registration={form.register("city")} error={errors.city} />
+            <TextField label={t.profile.label} placeholder={t.profile.labelPlaceholder} registration={form.register("name")} error={errors.name} />
+            <TextField label={t.checkout.city} autoComplete="address-level2" registration={form.register("city")} error={errors.city} />
             <TextField
-              label="Street address"
+              label={t.checkout.street}
               autoComplete="street-address"
               registration={form.register("details")}
               error={errors.details}
             />
             <TextField
-              label="Phone"
+              label={t.checkout.phone}
+              dir="ltr"
               type="tel"
               inputMode="tel"
               autoComplete="tel"
@@ -111,7 +116,7 @@ export function AddressBook({ initialAddresses }: { initialAddresses: Address[] 
             <FormError message={error} />
             <Button type="submit" disabled={isSubmitting} className="h-11 rounded-full">
               {isSubmitting && <Loader2 className="animate-spin" />}
-              Save address
+              {t.profile.saveAddress}
             </Button>
           </form>
         </DialogContent>

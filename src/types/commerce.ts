@@ -2,6 +2,8 @@ import type { Brand, Category, Product } from "./catalog";
 
 /** Product shape the API embeds inside cart and order lines. */
 export type LineProduct = Pick<Product, "_id" | "id" | "title" | "imageCover" | "ratingsAverage"> & {
+  /** Units in stock (present on populated cart lines). */
+  quantity?: number;
   category: Category;
   brand: Brand;
 };

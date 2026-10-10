@@ -1,8 +1,5 @@
 export const siteConfig = {
   name: "Cartivo",
-  tagline: "Everything you love, one cart away.",
-  description:
-    "Cartivo is a modern online store for electronics, fashion and lifestyle products — curated brands, fair prices and fast delivery.",
   url: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
   contact: {
     email: "support@cartivo.com",
@@ -19,10 +16,11 @@ export const CATALOG_REVALIDATE = 3600;
 
 export const PRODUCTS_PAGE_SIZE = 12;
 
+/** `label` is a key of `t.nav` in the dictionaries. */
 export const mainNav = [
-  { href: "/products", label: "Shop" },
-  { href: "/categories", label: "Categories" },
-  { href: "/brands", label: "Brands" },
+  { href: "/products", label: "shop" },
+  { href: "/categories", label: "categories" },
+  { href: "/brands", label: "brands" },
 ] as const;
 
 export const protectedRoutes = ["/cart", "/checkout", "/wishlist", "/allorders", "/profile"];

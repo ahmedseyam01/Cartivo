@@ -9,9 +9,11 @@ import { Loader2 } from "lucide-react";
 import { changePassword } from "@/actions/account";
 import { Button } from "@/components/ui/button";
 import { FormError, TextField } from "@/components/shared/FormField";
+import { useI18n } from "@/i18n/I18nProvider";
 import { changePasswordSchema, type ChangePasswordValues } from "@/lib/validations";
 
 export function PasswordForm() {
+  const { t } = useI18n();
   const [error, setError] = useState<string | null>(null);
   const form = useForm<ChangePasswordValues>({
     resolver: zodResolver(changePasswordSchema),
@@ -25,7 +27,7 @@ export function PasswordForm() {
     if (!result.ok) return setError(result.error);
 
     // The old access token is revoked by the API, so start a fresh session.
-    toast.success("Password changed. Please sign in again.");
+    toast.success(t.toast.passwordChanged);
     await signOut({ callbackUrl: "/login" });
   }
 
@@ -33,21 +35,21 @@ export function PasswordForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2" noValidate>
       <TextField
         className="sm:col-span-2"
-        label="Current password"
+        label={t.profile.currentPassword}
         type="password"
         autoComplete="current-password"
         registration={form.register("currentPassword")}
         error={errors.currentPassword}
       />
       <TextField
-        label="New password"
+        label={t.profile.newPassword}
         type="password"
         autoComplete="new-password"
         registration={form.register("password")}
         error={errors.password}
       />
       <TextField
-        label="Confirm new password"
+        label={t.profile.confirmPassword}
         type="password"
         autoComplete="new-password"
         registration={form.register("rePassword")}
@@ -57,7 +59,7 @@ export function PasswordForm() {
         <FormError message={error} />
         <Button type="submit" disabled={isSubmitting} className="h-11 rounded-full px-6">
           {isSubmitting && <Loader2 className="animate-spin" />}
-          Update password
+          {t.profile.updatePassword}
         </Button>
       </div>
     </form>

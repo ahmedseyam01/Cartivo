@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useI18n } from "@/i18n/I18nProvider";
 import { mainNav } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
@@ -11,10 +12,11 @@ export function useIsActive() {
 }
 
 export function NavLinks({ className }: { className?: string }) {
+  const { t } = useI18n();
   const isActive = useIsActive();
 
   return (
-    <nav aria-label="Main" className={cn("flex items-center gap-1", className)}>
+    <nav aria-label={t.nav.main} className={cn("flex items-center gap-1", className)}>
       {mainNav.map(({ href, label }) => (
         <Link
           key={href}
@@ -25,7 +27,7 @@ export function NavLinks({ className }: { className?: string }) {
             isActive(href) ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
           )}
         >
-          {label}
+          {t.nav[label]}
         </Link>
       ))}
     </nav>

@@ -86,6 +86,9 @@ export async function queryProducts({
   category,
   brand,
   subcategory,
+  minPrice,
+  maxPrice,
+  inStock,
   sort = "featured",
   page = 1,
   pageSize = PRODUCTS_PAGE_SIZE,
@@ -97,6 +100,10 @@ export async function queryProducts({
       if (category && product.category._id !== category) return false;
       if (brand && product.brand._id !== brand) return false;
       if (subcategory && !product.subcategory.some((s) => s._id === subcategory)) return false;
+      if (inStock && product.quantity <= 0) return false;
+      const price = effectivePrice(product);
+      if (minPrice !== undefined && price < minPrice) return false;
+      if (maxPrice !== undefined && price > maxPrice) return false;
       if (!term) return true;
       return [product.title, product.brand.name, product.category.name, ...product.subcategory.map((s) => s.name)]
         .join(" ")

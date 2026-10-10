@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { format } from "@/i18n/config";
+import { useI18n } from "@/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 export function ProductGallery({ images, title }: { images: string[]; title: string }) {
+  const { t } = useI18n();
   const [active, setActive] = useState(0);
 
   return (
@@ -16,7 +19,7 @@ export function ProductGallery({ images, title }: { images: string[]; title: str
               key={src}
               type="button"
               onClick={() => setActive(i)}
-              aria-label={`Show image ${i + 1}`}
+              aria-label={format(t.product.showImage, { index: i + 1 })}
               aria-current={i === active}
               className={cn(
                 "bg-muted relative size-16 shrink-0 overflow-hidden rounded-xl border-2 transition-colors md:size-20",
