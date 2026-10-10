@@ -1,18 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Star } from "lucide-react";
-import { effectivePrice } from "@/lib/api/catalog";
-import { formatPrice } from "@/lib/format";
+import { ArrowRight } from "lucide-react";
 import { getI18n } from "@/i18n/server";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import type { Product } from "@/types/catalog";
+import { HeroOrbit } from "./HeroOrbit";
 
 type Stats = { products: number; brands: number; categories: number };
 
-export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats }) {
-  const { locale, t } = getI18n();
-  const [main, ...side] = showcase;
+export function Hero({ stats }: { stats: Stats }) {
+  const { t } = getI18n();
 
   const statItems = [
     { value: stats.products, label: t.home.statProducts },
@@ -22,15 +17,13 @@ export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats })
 
   return (
     <section className="page-container pt-4 sm:pt-8">
-      <div className="bg-foreground text-background relative isolate grid items-center gap-10 overflow-hidden rounded-3xl p-6 sm:p-10 lg:grid-cols-2 lg:gap-6 lg:p-14">
-        {/* Soft light and a faint grid behind the content */}
-        <div aria-hidden className="absolute -start-40 -top-40 -z-10 size-[28rem] rounded-full bg-white/10 blur-3xl" />
+      <div className="bg-foreground text-background relative isolate grid items-center gap-6 overflow-hidden rounded-3xl p-6 sm:p-10 lg:grid-cols-2 lg:p-14">
+        {/* Faint grid fading out from the centre */}
         <div
           aria-hidden
           className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
         />
 
-        {/* Copy */}
         <div className="flex flex-col gap-6">
           <span className="flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80">
             <span className="relative flex size-2">
@@ -74,69 +67,8 @@ export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats })
           </dl>
         </div>
 
-        {/* Visual: one large product with two floating product cards */}
-        {main && (
-          <div className="relative mx-auto w-full max-w-[440px] lg:me-6">
-            <Link
-              href={`/products/${main.id}`}
-              className="group relative block aspect-square overflow-hidden rounded-[2rem] bg-white shadow-2xl shadow-black/50"
-            >
-              <Image
-                src={main.imageCover}
-                alt={main.title}
-                fill
-                priority
-                sizes="(min-width: 1024px) 440px, 90vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <span className="bg-foreground text-background absolute start-4 top-4 rounded-full px-3 py-1 text-xs font-semibold">
-                {t.home.featured}
-              </span>
-              <span className="text-foreground absolute end-4 top-4 rounded-full bg-white/90 px-3 py-1 text-sm font-bold tabular-nums shadow-sm backdrop-blur">
-                {formatPrice(effectivePrice(main), locale)}
-              </span>
-            </Link>
-
-            {side.map((product, i) => (
-              <FloatingCard
-                key={product.id}
-                product={product}
-                className={i === 0 ? "-start-4 bottom-10 sm:-start-12" : "-end-3 top-16 sm:-end-10"}
-              />
-            ))}
-          </div>
-        )}
+        <HeroOrbit className="mx-auto max-w-[320px] sm:max-w-[420px] lg:max-w-[460px]" />
       </div>
     </section>
-  );
-}
-
-function FloatingCard({ product, className }: { product: Product; className?: string }) {
-  const { locale } = getI18n();
-
-  return (
-    <Link
-      href={`/products/${product.id}`}
-      className={cn(
-        "text-foreground absolute flex w-52 items-center gap-3 rounded-2xl bg-white p-2 pe-3 shadow-2xl ring-1 ring-black/5 transition-transform hover:-translate-y-1 sm:w-60",
-        className,
-      )}
-    >
-      <span className="bg-muted relative size-12 shrink-0 overflow-hidden rounded-xl sm:size-14">
-        <Image src={product.imageCover} alt="" fill sizes="56px" className="object-cover" />
-      </span>
-      <span className="min-w-0">
-        <span className="block truncate text-xs font-medium">
-          <bdi>{product.title}</bdi>
-        </span>
-        <span className="mt-0.5 flex items-center gap-1.5">
-          <span className="text-sm font-bold tabular-nums">{formatPrice(effectivePrice(product), locale)}</span>
-          <span className="text-muted-foreground flex items-center gap-0.5 text-[11px]">
-            <Star className="size-3 fill-amber-400 text-amber-400" />
-            {product.ratingsAverage.toFixed(1)}
-          </span>
-        </span>
-      </span>
-    </Link>
   );
 }

@@ -138,7 +138,6 @@ const en = {
     joinText: "Create a free account to build your wishlist, save addresses and check out in seconds.",
     joinCta: "Join Cartivo",
     statProducts: "Products",
-    featured: "Featured",
   },
   cart: {
     title: "Shopping cart",

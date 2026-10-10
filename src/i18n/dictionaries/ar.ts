@@ -140,7 +140,6 @@ const ar: Dictionary = {
     joinText: "اعمل حساب مجاني عشان تحفظ المفضلة والعناوين وتخلّص طلبك في ثواني.",
     joinCta: "انضم لكارتيفو",
     statProducts: "منتج",
-    featured: "مميز",
   },
   cart: {
     title: "سلة التسوق",

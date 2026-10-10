@@ -19,11 +19,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     .filter((p) => !bestSellers.includes(p))
     .sort((a, b) => b.ratingsAverage - a.ratingsAverage)
     .slice(0, 4);
-  // The most-reviewed product from each of three different categories, so the hero shows variety.
-  const showcase = [...products]
-    .sort((a, b) => b.ratingsQuantity - a.ratingsQuantity)
-    .filter((p, i, list) => list.findIndex((q) => q.category._id === p.category._id) === i)
-    .slice(0, 3);
   // Brands that actually have products, so every logo leads somewhere.
   const brandIds = new Set(products.map((p) => p.brand._id));
   const featuredBrands = brands.filter((b) => brandIds.has(b._id)).slice(0, 12);
@@ -31,7 +26,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <Hero
-        showcase={showcase}
         stats={{ products: products.length, brands: brands.length, categories: categories.length }}
       />
 
