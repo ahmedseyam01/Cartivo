@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import { effectivePrice } from "@/lib/api/catalog";
 import { formatPrice } from "@/lib/format";
 import { getI18n } from "@/i18n/server";
@@ -11,7 +11,7 @@ import type { Product } from "@/types/catalog";
 type Stats = { products: number; brands: number; categories: number };
 
 export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats }) {
-  const { t } = getI18n();
+  const { locale, t } = getI18n();
   const [main, ...side] = showcase;
 
   const statItems = [
@@ -22,12 +22,16 @@ export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats })
 
   return (
     <section className="page-container pt-4 sm:pt-8">
-      <div className="bg-foreground text-background relative isolate grid overflow-hidden rounded-3xl lg:grid-cols-[1.05fr_1fr]">
-        {/* Soft light behind the content */}
-        <div aria-hidden className="absolute -start-32 -top-32 -z-10 size-96 rounded-full bg-white/10 blur-3xl" />
-        <div aria-hidden className="absolute -end-24 bottom-0 -z-10 size-80 rounded-full bg-white/5 blur-3xl" />
+      <div className="bg-foreground text-background relative isolate grid items-center gap-10 overflow-hidden rounded-3xl p-6 sm:p-10 lg:grid-cols-2 lg:gap-6 lg:p-14">
+        {/* Soft light and a faint grid behind the content */}
+        <div aria-hidden className="absolute -start-40 -top-40 -z-10 size-[28rem] rounded-full bg-white/10 blur-3xl" />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+        />
 
-        <div className="flex flex-col justify-center gap-6 p-7 sm:p-12 lg:p-14">
+        {/* Copy */}
+        <div className="flex flex-col gap-6">
           <span className="flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80">
             <span className="relative flex size-2">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -36,10 +40,10 @@ export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats })
             {t.home.badge}
           </span>
 
-          <h1 className="text-4xl leading-[1.1] font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.5rem]">
+          <h1 className="text-4xl leading-[1.08] font-bold tracking-tight text-balance sm:text-5xl xl:text-6xl">
             {t.home.heroTitle}
           </h1>
-          <p className="max-w-md text-base leading-relaxed text-white/65 sm:text-lg">{t.home.heroText}</p>
+          <p className="max-w-md text-base leading-relaxed text-white/60 sm:text-lg">{t.home.heroText}</p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg" className="bg-background text-foreground hover:bg-background/90 h-12 rounded-full px-7 text-base">
@@ -57,24 +61,48 @@ export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats })
             </Button>
           </div>
 
-          <dl className="mt-2 flex divide-x divide-white/15 border-t border-white/10 pt-6 rtl:divide-x-reverse">
+          <dl className="flex gap-8 pt-2 sm:gap-12">
             {statItems.map((stat) => (
-              <div key={stat.label} className="flex-1 px-4 first:ps-0 last:pe-0">
+              <div key={stat.label}>
                 <dt className="sr-only">{stat.label}</dt>
                 <dd>
                   <span className="block text-2xl font-bold tabular-nums sm:text-3xl">{stat.value}+</span>
-                  <span className="text-xs text-white/55 sm:text-sm">{stat.label}</span>
+                  <span className="text-xs text-white/50 sm:text-sm">{stat.label}</span>
                 </dd>
               </div>
             ))}
           </dl>
         </div>
 
+        {/* Visual: one large product with two floating product cards */}
         {main && (
-          <div className="grid grid-cols-2 gap-3 p-3 pt-0 sm:p-4 lg:ps-0 lg:pt-4">
-            <ShowcaseTile product={main} featured priority className="col-span-2 aspect-[16/10]" />
-            {side.map((product) => (
-              <ShowcaseTile key={product.id} product={product} className="aspect-square" />
+          <div className="relative mx-auto w-full max-w-[440px] lg:me-6">
+            <Link
+              href={`/products/${main.id}`}
+              className="group relative block aspect-square overflow-hidden rounded-[2rem] bg-white shadow-2xl shadow-black/50"
+            >
+              <Image
+                src={main.imageCover}
+                alt={main.title}
+                fill
+                priority
+                sizes="(min-width: 1024px) 440px, 90vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <span className="bg-foreground text-background absolute start-4 top-4 rounded-full px-3 py-1 text-xs font-semibold">
+                {t.home.featured}
+              </span>
+              <span className="text-foreground absolute end-4 top-4 rounded-full bg-white/90 px-3 py-1 text-sm font-bold tabular-nums shadow-sm backdrop-blur">
+                {formatPrice(effectivePrice(main), locale)}
+              </span>
+            </Link>
+
+            {side.map((product, i) => (
+              <FloatingCard
+                key={product.id}
+                product={product}
+                className={i === 0 ? "-start-4 bottom-10 sm:-start-12" : "-end-3 top-16 sm:-end-10"}
+              />
             ))}
           </div>
         )}
@@ -83,44 +111,32 @@ export function Hero({ showcase, stats }: { showcase: Product[]; stats: Stats })
   );
 }
 
-function ShowcaseTile({
-  product,
-  featured = false,
-  priority = false,
-  className,
-}: {
-  product: Product;
-  featured?: boolean;
-  priority?: boolean;
-  className?: string;
-}) {
-  const { locale, t } = getI18n();
+function FloatingCard({ product, className }: { product: Product; className?: string }) {
+  const { locale } = getI18n();
 
   return (
     <Link
       href={`/products/${product.id}`}
-      className={cn("group text-foreground relative overflow-hidden rounded-2xl bg-white", className)}
+      className={cn(
+        "text-foreground absolute flex w-52 items-center gap-3 rounded-2xl bg-white p-2 pe-3 shadow-2xl ring-1 ring-black/5 transition-transform hover:-translate-y-1 sm:w-60",
+        className,
+      )}
     >
-      <Image
-        src={product.imageCover}
-        alt={product.title}
-        fill
-        priority={priority}
-        sizes={featured ? "(min-width: 1024px) 560px, 100vw" : "(min-width: 1024px) 280px, 50vw"}
-        className={cn(
-          "object-contain transition-transform duration-500 group-hover:scale-105",
-          featured ? "p-6 pb-16 sm:p-8 sm:pb-20" : "p-4 pb-12",
-        )}
-      />
-      <span className="bg-foreground/90 text-background absolute start-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur">
-        {featured ? t.home.featured : product.category.name}
+      <span className="bg-muted relative size-12 shrink-0 overflow-hidden rounded-xl sm:size-14">
+        <Image src={product.imageCover} alt="" fill sizes="56px" className="object-cover" />
       </span>
-      <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-xl bg-white/85 px-3 py-2 shadow-sm ring-1 ring-black/5 backdrop-blur">
-        <p className={cn("min-w-0 truncate font-medium", featured ? "text-sm" : "text-xs")}><bdi>{product.title}</bdi></p>
-        <p className={cn("shrink-0 font-bold tabular-nums", featured ? "text-sm" : "text-xs")}>
-          {formatPrice(effectivePrice(product), locale)}
-        </p>
-      </div>
+      <span className="min-w-0">
+        <span className="block truncate text-xs font-medium">
+          <bdi>{product.title}</bdi>
+        </span>
+        <span className="mt-0.5 flex items-center gap-1.5">
+          <span className="text-sm font-bold tabular-nums">{formatPrice(effectivePrice(product), locale)}</span>
+          <span className="text-muted-foreground flex items-center gap-0.5 text-[11px]">
+            <Star className="size-3 fill-amber-400 text-amber-400" />
+            {product.ratingsAverage.toFixed(1)}
+          </span>
+        </span>
+      </span>
     </Link>
   );
 }
